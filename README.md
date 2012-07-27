@@ -1,7 +1,7 @@
 trivia.mpllvm
 =============
 
-Metaprogramming type resolver for LLVM
+Metaprogramming type resolver for LLVM (using C++11)
 
 - `llvm::Type * mpllvm::get< T >( llvm::LLVMContext & llvmContext )`
 
