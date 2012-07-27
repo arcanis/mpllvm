@@ -23,7 +23,7 @@ namespace mpllvm
 
         template < typename T, typename... R >
         struct TypesResolver< T, R... > {
-            static std::vector< llvm::Type * > && list( llvm::LLVMContext & llvmContext, int position = 0 )
+            static std::vector< llvm::Type * > list( llvm::LLVMContext & llvmContext, int position = 0 )
             {
                 std::vector< llvm::Type * > && typeList = mpllvm::internal::TypesResolver< R... >::list( llvmContext, position + 1 );
                 typeList[ position ] = mpllvm::internal::TypeResolver< T >::get( llvmContext );
