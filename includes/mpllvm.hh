@@ -112,14 +112,14 @@ namespace mpllvm
     // Returns the LLVM type corresponding to the template parameter
 
     template < typename T >
-    llvm::Type * get( llvm::LLVMContext & llvmContext ) {
+    auto get( llvm::LLVMContext & llvmContext ) -> decltype( mpllvm::internal::TypeResolver< T >::get( llvmContext ) ) {
         return mpllvm::internal::TypeResolver< T >::get( llvmContext );
     }
 
     // Try to deduce the LLVM type based on the parameter variable
 
     template < typename T >
-    llvm::Type * deduce( llvm::LLVMContext & llvmContext, T const & t ) {
+    auto deduce( llvm::LLVMContext & llvmContext, T const & t ) -> decltype( mpllvm::get< T >( llvmContext ) ) {
         return mpllvm::get< T >( llvmContext );
     }
 
