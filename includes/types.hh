@@ -38,10 +38,10 @@ namespace mpllvm
     namespace internal
     {
 
-        template < typename T >
+        template < typename IntegerType >
         struct IntegerTypeResolver {
             static llvm::Type * get( llvm::LLVMContext & llvmContext ) {
-                return llvm::IntegerType::get( llvmContext, sizeof( T ) * 8 );
+                return llvm::IntegerType::get( llvmContext, sizeof( IntegerType ) * 8 );
             }
         };
 
@@ -132,12 +132,12 @@ namespace mpllvm
     namespace internal
     {
 
-        template < typename T, typename... R >
-        struct TypesResolver< T, R... > {
+        template < typename Type, typename... Rest >
+        struct TypesResolver< Type, Rest... > {
             static std::vector< llvm::Type * > list( llvm::LLVMContext & llvmContext, int position = 0 )
             {
-                std::vector< llvm::Type * > && typeList = mpllvm::internal::TypesResolver< R... >::list( llvmContext, position + 1 );
-                typeList[ position ] = mpllvm::internal::TypeResolver< T >::get( llvmContext );
+                std::vector< llvm::Type * > && typeList = mpllvm::internal::TypesResolver< Rest... >::list( llvmContext, position + 1 );
+                typeList[ position ] = mpllvm::internal::TypeResolver< Type >::get( llvmContext );
                 return typeList;
             }
         };
@@ -146,9 +146,9 @@ namespace mpllvm
         struct TypesResolver< > {
             static std::vector < llvm::Type * > list( llvm::LLVMContext &, int count = 0 )
             {
-                std::vector< llvm::Type * > vector;
-                vector.resize( count );
-                return vector;
+                std::vector< llvm::Type * > typeList;
+                typeList.resize( count );
+                return typeList;
             }
         };
 
@@ -163,14 +163,14 @@ namespace mpllvm
 namespace mpllvm
 {
 
-    template < typename T >
-    auto get( llvm::LLVMContext & llvmContext ) -> decltype( mpllvm::internal::TypeResolver< T >::get( llvmContext ) ) {
-        return mpllvm::internal::TypeResolver< T >::get( llvmContext );
+    template < typename Type >
+    auto get( llvm::LLVMContext & llvmContext ) -> decltype( mpllvm::internal::TypeResolver< Type >::get( llvmContext ) ) {
+        return mpllvm::internal::TypeResolver< Type >::get( llvmContext );
     }
 
-    template < typename T >
-    auto deduce( llvm::LLVMContext & llvmContext, T const & t ) -> decltype( mpllvm::get< T >( llvmContext ) ) {
-        return mpllvm::get< T >( llvmContext );
+    template < typename Type >
+    auto deduce( llvm::LLVMContext & llvmContext, Type const & t ) -> decltype( mpllvm::get< Type >( llvmContext ) ) {
+        return mpllvm::get< Type >( llvmContext );
     }
 
     template < typename... Types >
