@@ -51,7 +51,7 @@ namespace mpllvm
 {
 
     template < int... N >
-    struct gep {
+    struct GEP {
         template < typename IRBuilder >
         static llvm::Value * build( llvm::LLVMContext & llvmContext, IRBuilder & builder, llvm::Value * value ) {
             return builder.CreateGEP( value, mpllvm::internal::IndexesResolver< N... >::list( llvmContext ) );
