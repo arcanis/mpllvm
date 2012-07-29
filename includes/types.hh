@@ -117,6 +117,14 @@ namespace mpllvm
             }
         };
 
+        // LLVM does not allow void*, so we need to convert is as i8* instead
+        template < >
+        struct TypeResolver< void * > {
+            static llvm::PointerType * get( llvm::LLVMContext & llvmContext ) {
+                return llvm::PointerType::get( mpllvm::internam::TypeResolver< char >::get( llvmContext ), 0 );
+            }
+        };
+
     }
 
 }
