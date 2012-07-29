@@ -45,6 +45,9 @@ namespace mpllvm
             }
         };
 
+        template < > struct TypeResolver< char >
+            : public IntegerTypeResolver< char > { };
+
         template < > struct TypeResolver< signed char >
             : public IntegerTypeResolver< signed char > { };
 
