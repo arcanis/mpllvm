@@ -111,6 +111,13 @@ namespace mpllvm
         };
 
         template < typename Type >
+        struct TypeResolver< Type const > {
+            static auto get( llvm::LLVMContext & llvmContext ) -> decltype( mpllvm::internal::TypeResolver< Type >::get( llvmContext ) ) {
+                return mpllvm::internal::TypeResolver< Type >::get( llvmContext );
+            }
+        };
+
+        template < typename Type >
         struct TypeResolver< Type * > {
             static llvm::PointerType * get( llvm::LLVMContext & llvmContext ) {
                 return llvm::PointerType::get( mpllvm::internal::TypeResolver< Type >::get( llvmContext ), 0 );
