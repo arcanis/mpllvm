@@ -128,7 +128,7 @@ namespace mpllvm
         template < >
         struct TypeResolver< void * > {
             static llvm::PointerType * get( llvm::LLVMContext & llvmContext ) {
-                return llvm::PointerType::get( mpllvm::internam::TypeResolver< char >::get( llvmContext ), 0 );
+                return llvm::PointerType::get( mpllvm::internal::TypeResolver< char >::get( llvmContext ), 0 );
             }
         };
 
