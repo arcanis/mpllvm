@@ -8,6 +8,30 @@
 #include <llvm/Value.h>
 
 /*
+ * Definition of the function which turns a user GEP index into a LLVM value
+ */
+
+namespace mpllvm
+{
+    namespace internal
+    {
+
+        llvm::Value * getLLVMValueFromIndex( llvm::Value * t ) {
+            return t;
+        }
+
+        llvm::Value * getLLVMValueFromIndex( llvm::LLVMContext & llvmContext, std::int32_t value ) {
+            return llvm::ConstantInt::get( llvmContext, llvm::APInt( 32, value ) );
+        }
+
+        llvm::Value * getLLVMValueFromIndex( llvm::LLVMContext & llvmContext, std::int64_t value ) {
+            return llvm::ConstantInt::get( llvmContext, llvm::APInt( 64, value ) );
+        }
+
+    }
+}
+
+/*
  * Definition of the IndexesResolver
  * (Which should convert multiple indexes into a std::vector<llvm::Value *>)
  */
@@ -18,22 +42,22 @@ namespace mpllvm
     namespace internal
     {
 
-        template < int... Indexes >
+        template < typename... Indexes >
         struct IndexesResolver;
 
-        template < int BitSize, int Offset, int... Rest >
-        struct IndexesResolver< BitSize, Offset, Rest... > {
-            static std::vector< llvm::Value * > list( llvm::LLVMContext & llvmContext, int position = 0 ) {
-                std::vector< llvm::Value * > && indexList = mpllvm::internal::IndexesResolver< Rest... >::list( llvmContext, position + 1 );
-                indexList[ position ] = llvm::ConstantInt::get( llvmContext, llvm::APInt( BitSize, Offset ) );
+        template < typename T, typename... Rest >
+        struct IndexesResolver< T, Rest... > {
+            static std::vector< llvm::Value * > list( int position, llvm::LLVMContext & llvmContext, T t, Rest... rest ) {
+                std::vector< llvm::Value * > && indexList = mpllvm::internal::IndexesResolver< Rest... >::list( position + 1, llvmContext, rest... );
+                indexList[ position ] = mpllvm::internal::getLLVMValueFromIndex( llvmContext, t );
                 return indexList;
             }
         };
 
         template < >
         struct IndexesResolver< > {
-            static std::vector< llvm::Value * > list( llvm::LLVMContext &, int count = 0 ) {
-                std::vector< llvm::Value *> indexList;
+            static std::vector< llvm::Value * > list( int count, llvm::LLVMContext & ) {
+                std::vector< llvm::Value * > indexList;
                 indexList.resize( count );
                 return indexList;
             }
@@ -50,12 +74,14 @@ namespace mpllvm
 namespace mpllvm
 {
 
-    template < int... N >
+    template < typename... Indexes >
     struct GEP {
+
         template < typename IRBuilder >
-        static llvm::Value * build( llvm::LLVMContext & llvmContext, IRBuilder & builder, llvm::Value * value ) {
-            return builder.CreateGEP( value, mpllvm::internal::IndexesResolver< N... >::list( llvmContext ) );
+        static llvm::Value * build( llvm::LLVMContext & llvmContext, IRBuilder & builder, llvm::Value * value, Indexes... indexes ) {
+            return builder.CreateGEP( value, mpllvm::internal::IndexesResolver< Indexes... >::list( 0, llvmContext, indexes... ) );
         }
+
     };
 
 }
