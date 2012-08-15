@@ -4,7 +4,10 @@
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/DerivedTypes.h>
+#include <llvm/Function.h>
+#include <llvm/GlobalValue.h>
 #include <llvm/LLVMContext.h>
+#include <llvm/Module.h>
 #include <llvm/Type.h>
 
 /*
@@ -123,7 +126,7 @@ namespace mpllvm
         template < typename Type >
         struct TypeResolver< Type * > {
             static llvm::PointerType * get( llvm::LLVMContext & llvmContext ) {
-                return llvm::PointerType::get( mpllvm::internal::TypeResolver< Type >::get( llvmContext ), 0 );
+                return llvm::PointerType::getUnqual( mpllvm::internal::TypeResolver< Type >::get( llvmContext ) );
             }
         };
 
@@ -131,7 +134,7 @@ namespace mpllvm
         template < >
         struct TypeResolver< void * > {
             static llvm::PointerType * get( llvm::LLVMContext & llvmContext ) {
-                return llvm::PointerType::get( mpllvm::internal::TypeResolver< char >::get( llvmContext ), 0 );
+                return llvm::PointerType::getUnqual( mpllvm::internal::TypeResolver< char >::get( llvmContext ) );
             }
         };
 
@@ -191,9 +194,34 @@ namespace mpllvm
         return mpllvm::get< Type >( llvmContext );
     }
 
-    template < typename... Types >
-    llvm::StructType * craft( llvm::LLVMContext & llvmContext, bool isPacked = false ) {
-        return llvm::StructType::get( llvmContext, mpllvm::internal::TypesResolver< Types... >::list( llvmContext ) );
+    namespace structure
+    {
+
+        template < typename... Types >
+        llvm::StructType * get( llvm::LLVMContext & llvmContext, bool isPacked = false ) {
+            return llvm::StructType::get( llvmContext, mpllvm::internal::TypesResolver< Types... >::list( llvmContext ), isPacked );
+        }
+
+        template < typename... Types >
+        llvm::StructType * create( llvm::LLVMContext & llvmContext, std::string const & name, bool isPacked = false ) {
+            return llvm::StructType::create( llvmContext, mpllvm::internal::TypesResolver< Types... >::list( llvmContext ), name, isPacked );
+        }
+
+    }
+
+    namespace function
+    {
+
+        template < typename Type >
+        llvm::Function * create( llvm::LLVMContext & llvmContext, std::string const & name, llvm::GlobalValue::LinkageTypes linkageType, llvm::Module * module = nullptr ) {
+            return llvm::Function::Create( mpllvm::internal::TypeResolver< Type >::get( llvmContext ), linkageType, name, module );
+        }
+
+        template < typename Type >
+        llvm::Function * create( llvm::LLVMContext & llvmContext, std::string const & name, Type const & t, llvm::GlobalValue::LinkageTypes linkageType, llvm::Module * module = nullptr ) {
+            return llvm::Function::Create( mpllvm::internal::TypeResolver< Type >::get( llvmContext ), linkageType, name, module );
+        }
+
     }
 
 }
