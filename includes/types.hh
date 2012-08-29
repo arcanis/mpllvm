@@ -124,6 +124,20 @@ namespace mpllvm
         };
 
         template < typename Type >
+        struct TypeResolver< Type [] > {
+            static llvm::ArrayType * get( llvm::LLVMContext & llvmContext ) {
+                return llvm::ArrayType::get( mpllvm::internal::TypeResolver< Type >::get( llvmContext ), 0 );
+            }
+        };
+
+        template < typename Type, int N >
+        struct TypeResolver< Type [ N ] > {
+            static llvm::ArrayType * get( llvm::LLVMContext & llvmContext ) {
+                return llvm::ArrayType::get( mpllvm::internal::TypeResolver< Type >::get( llvmContext ), N );
+            }
+        };
+
+        template < typename Type >
         struct TypeResolver< Type * > {
             static llvm::PointerType * get( llvm::LLVMContext & llvmContext ) {
                 return llvm::PointerType::getUnqual( mpllvm::internal::TypeResolver< Type >::get( llvmContext ) );
