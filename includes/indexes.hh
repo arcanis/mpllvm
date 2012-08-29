@@ -16,15 +16,15 @@ namespace mpllvm
     namespace internal
     {
 
-        llvm::Value * getLLVMValueFromIndex( llvm::Value * t ) {
+        inline llvm::Value * getLLVMValueFromIndex( llvm::LLVMContext &, llvm::Value * t ) {
             return t;
         }
 
-        llvm::Value * getLLVMValueFromIndex( llvm::LLVMContext & llvmContext, std::int32_t value ) {
+        inline llvm::Value * getLLVMValueFromIndex( llvm::LLVMContext & llvmContext, std::int32_t value ) {
             return llvm::ConstantInt::get( llvmContext, llvm::APInt( 32, value ) );
         }
 
-        llvm::Value * getLLVMValueFromIndex( llvm::LLVMContext & llvmContext, std::int64_t value ) {
+        inline llvm::Value * getLLVMValueFromIndex( llvm::LLVMContext & llvmContext, std::int64_t value ) {
             return llvm::ConstantInt::get( llvmContext, llvm::APInt( 64, value ) );
         }
 
